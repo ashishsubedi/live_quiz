@@ -1,72 +1,45 @@
+from django.contrib.auth import get_user_model
 from django.shortcuts import render
 
-from .models import Profile,User
-
-
-from .serializers import (
-    ProfileCreateSerializer,
-    ProfileSerializer,
-    UserSerializer,
-    UserCreateSerializer,
-    UserUpdateSerializer,
-)
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import (
-    IsAuthenticated
-)
-from .permissions import (
-    IsOwnerOrReadOnly
-)
+from rest_framework import authentication, permissions,status
 
-from rest_framework.generics import (
-    ListAPIView,
-    RetrieveAPIView,
-    CreateAPIView,
-    DestroyAPIView,
-    UpdateAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateAPIView,
-    RetrieveDestroyAPIView,
+from .serializers import UserSerializer
+
+User = get_user_model()
+
+class UserRegisterView(APIView):
+
+    authentication_classes = [authentication.TokenAuthentication]
+    def post(self,request):
+        '''
+            Create new user
+        '''
+        data = request.data
+        print(data)
+        serializer = UserSerializer(data=data)
+        
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({
+            'status': status.HTTP_200_OK,
+            'data':serializer.data
+        })
+    
+class UserLogoutView(APIView):
+
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    def get(self,request):
+        '''
+            Logout user
+        '''
+        request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)
+        
     
 
-)
-##### User #####
-class UserCreateView(CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserCreateSerializer
+        
 
-class UserDetailView(RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'username'
-    lookup_url_kwarg = 'username'
-    permission_classes = [IsAuthenticated]
-
-
-class UserUpdateView(UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserUpdateSerializer
-    lookup_field = 'username'
-    lookup_url_kwarg = 'username'
-    permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]
-
-
-class UserDeleteView(DestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    lookup_field = 'username'
-    lookup_url_kwarg = 'username'
-    permission_classes = [IsAuthenticated,IsOwnerOrReadOnly]
-
-
-#### Profile #####
-
-class ProfileDetailView(RetrieveAPIView):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-
-
-    lookup_field = 'user__username'
-    lookup_url_kwarg = 'username'
-    
