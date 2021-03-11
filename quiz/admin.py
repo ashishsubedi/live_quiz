@@ -18,10 +18,6 @@ class QuizAdmin(NestedModelAdmin):
 
     inlines = [ProblemInline]
     exclude = ['slug']
-
-    def get_form(self, request, obj=None, **kwargs):  
-        Quiz.author = request.user
-        return super().get_form(request, obj, **kwargs)
         
     def save_model(self, request, obj, form, change):
         obj.author = request.user
@@ -29,14 +25,31 @@ class QuizAdmin(NestedModelAdmin):
         obj.last_modified_by = request.user
         obj.save()
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(author=request.user)
+
 admin.site.register(Quiz,QuizAdmin)
 
-# class ProblemAdmin(admin.ModelAdmin):
-#     inlines = [OptionInline]
+class ScoreBoardAdmin(admin.ModelAdmin):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+ 
+        return qs.filter(quiz__author=request.user)
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "quiz":
+            kwargs["queryset"] = Quiz.objects.filter(author=request.user)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+        
 
 
-# admin.site.register(Problem,ProblemAdmin)
-admin.site.register(ScoreBoard)
+
+admin.site.register(ScoreBoard,ScoreBoardAdmin)
 
 
     

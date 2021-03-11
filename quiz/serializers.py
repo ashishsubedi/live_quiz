@@ -3,4 +3,4 @@ from .models import Quiz
 class QuizListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['__all__']
+        fields = '__all__'
