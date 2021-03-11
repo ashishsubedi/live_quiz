@@ -7,7 +7,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', QuizList.as_view()),
-    path('<pk>/', QuizRetrieveView.as_view()),
+    path('', QuizList.as_view(),name='quiz_list'),
+    path('<pk>/', QuizRetrieveView.as_view(),name='quiz_detail'),
 
 ]

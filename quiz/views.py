@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django.contrib.auth import get_user_model
 
 
@@ -25,12 +25,19 @@ User = get_user_model()
 
 class QuizList(ListAPIView):
     queryset = Quiz.objects.all()
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
     serializer_class = QuizListSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Quiz.objects.all()
+            
+        return Quiz.objects.filter(author=user)
 
 class QuizRetrieveView(RetrieveAPIView):
     queryset = Quiz.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     serializer_class = QuizRetrieveSerializer
 
     # def get_object(self):

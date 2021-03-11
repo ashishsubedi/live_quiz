@@ -1,12 +1,19 @@
+from django.urls import reverse
 from rest_framework import serializers
 from .models import (Quiz,Problem,Option)
 from random import sample
 
-
 class QuizListSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+
     class Meta:
         model = Quiz
         fields = '__all__'
+    
+        
+    def get_url(self,obj):
+        return reverse('quiz_detail',args=[obj.id])
+
 
 class OptionRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,6 +45,7 @@ class QuizRetrieveSerializer(serializers.ModelSerializer):
         return serializer.data
     def get_author(self,obj):
         return obj.author.username
+
 
     def get_status_name(self,obj):
         return obj.get_status_display()

@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin, NestedTabularInline
 from .models import  Problem, Option, Quiz, ScoreBoard
 
@@ -6,7 +8,7 @@ class OptionInline(NestedTabularInline):
     model = Option
     extra = 4
 
-class ProblemInline(NestedTabularInline):
+class ProblemInline(NestedStackedInline):
     model = Problem
     extra = 3
     show_change_link = True
@@ -16,6 +18,7 @@ class ProblemInline(NestedTabularInline):
 class QuizAdmin(NestedModelAdmin):
     readonly_fields = ['author']
     list_display = ('title','status','schedule_date')
+    list_filter = ('author','schedule_date','author__is_superuser')
     inlines = [ProblemInline]
     exclude = ['slug']
         
@@ -53,6 +56,4 @@ class ScoreBoardAdmin(admin.ModelAdmin):
 
 admin.site.register(ScoreBoard,ScoreBoardAdmin)
 
-
-    
 
