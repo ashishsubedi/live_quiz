@@ -1,17 +1,19 @@
 from django.contrib import admin
+from nested_inline.admin import NestedStackedInline, NestedModelAdmin, NestedTabularInline
 from .models import  Problem, Option, Quiz, ScoreBoard
 
-class OptionInline(admin.TabularInline):
+class OptionInline(NestedTabularInline):
     model = Option
     extra = 4
 
-class ProblemInline(admin.TabularInline):
+class ProblemInline(NestedTabularInline):
     model = Problem
     extra = 3
     show_change_link = True
+    inlines = [OptionInline]
 
     
-class QuizAdmin(admin.ModelAdmin):
+class QuizAdmin(NestedModelAdmin):
     readonly_fields = ['author']
 
     inlines = [ProblemInline]
@@ -29,11 +31,11 @@ class QuizAdmin(admin.ModelAdmin):
 
 admin.site.register(Quiz,QuizAdmin)
 
-class ProblemAdmin(admin.ModelAdmin):
-    inlines = [OptionInline]
+# class ProblemAdmin(admin.ModelAdmin):
+#     inlines = [OptionInline]
 
 
-admin.site.register(Problem,ProblemAdmin)
+# admin.site.register(Problem,ProblemAdmin)
 admin.site.register(ScoreBoard)
 
 

@@ -2,24 +2,33 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils.text import slugify 
 
+
+from django.utils import timezone
 User = get_user_model()
 
 
 class Quiz(models.Model):
-    author = models.ForeignKey(User,related_name='quiz',on_delete=models.DO_NOTHING)
+    STATUS_TYPE    = (
+        (1, 'Draft'),
+        (2, 'Private'),
+        (3, 'Public'),
+    )
+    author = models.ForeignKey(User,related_name='quiz',on_delete=models.CASCADE)
+    status = models.IntegerField(choices=STATUS_TYPE)
     title = models.CharField(max_length=255,default='')
+    schedule_date = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    slug = models.SlugField(unique=True,blank=True,null=True)
 
     class Meta:
         ordering = ['-created']
+        verbose_name_plural = 'Quizzes'
     
     def __str__(self):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.created)
+        self.slug = slugify(self.title)
         super(Quiz, self).save(*args, **kwargs)
 
 
@@ -36,6 +45,8 @@ class Problem(models.Model):
         return self.options.filter(id=option.id,is_answer=True).exists()
 
 class Option(models.Model):
+
+
     option = models.CharField(max_length=255)
     is_answer = models.BooleanField()
     problem = models.ForeignKey(Problem,related_name='options',on_delete=models.CASCADE)
@@ -44,9 +55,12 @@ class Option(models.Model):
         return f"{self.option} for {self.problem.question}"
 
 class ScoreBoard(models.Model):
-    quiz = models.ForeignKey(Quiz,related_name='scoreboard',on_delete=models.DO_NOTHING)
-    user = models.ForeignKey(User,related_name='scoreboard',on_delete=models.DO_NOTHING)
+    quiz = models.ForeignKey(Quiz,related_name='scoreboard',on_delete=models.CASCADE)
+    user = models.ForeignKey(User,related_name='scoreboard',on_delete=models.CASCADE)
     score =  models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.first_name}->{self.score} on {self.quiz.title}"
+
+    class Meta:
+        verbose_name_plural = 'Score Board'
