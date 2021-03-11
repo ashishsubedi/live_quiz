@@ -19,6 +19,8 @@ class Quiz(models.Model):
     status = models.IntegerField(choices=STATUS_TYPE)
     title = models.CharField(max_length=255,default='')
     timelimit = models.DurationField(default=timedelta(minutes=20))
+    total_questions_num = models.IntegerField(default=10)
+    available_attempts = models.IntegerField(default=3)
     schedule_date = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
