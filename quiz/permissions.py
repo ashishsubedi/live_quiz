@@ -7,6 +7,7 @@ class IsAuthor(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         
-
-        # Instance must have an attribute named `owner`.
+        if request.user.is_superuser:
+            return True
+        # Instance must have an attribute named `author`.
         return obj.author == request.user

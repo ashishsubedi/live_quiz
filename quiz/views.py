@@ -18,7 +18,7 @@ from .models import (
 )
 
 from .serializers import QuizListSerializer,QuizRetrieveSerializer
-
+from .permissions import IsAuthor
 
 
 User = get_user_model()
@@ -32,21 +32,12 @@ class QuizList(ListAPIView):
         user = self.request.user
         if user.is_superuser:
             return Quiz.objects.all()
-            
+
         return Quiz.objects.filter(author=user)
 
 class QuizRetrieveView(RetrieveAPIView):
     queryset = Quiz.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAuthor]
     serializer_class = QuizRetrieveSerializer
 
-    # def get_object(self):
-    #     queryset = self.get_queryset()
-    #     filter = {}
-    #     field = self.lookup_field
-    #     filter[field] = self.kwargs[field]
 
-    #     obj = get_object_or_404(queryset, **filter)
-    #     self.check_object_permissions(self.request, obj)
-        
-    #     return obj
