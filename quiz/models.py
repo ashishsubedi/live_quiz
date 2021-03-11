@@ -44,4 +44,9 @@ class Option(models.Model):
         return f"{self.option} for {self.problem.question}"
 
 class ScoreBoard(models.Model):
-    quiz = models.ForeignKey(Quiz,related_name='quiz',on_delete=models.DO_NOTHING)
+    quiz = models.ForeignKey(Quiz,related_name='scoreboard',on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User,related_name='scoreboard',on_delete=models.DO_NOTHING)
+    score =  models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.first_name}->{self.score} on {self.quiz.title}"

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import  Problem, Option, Quiz
+from .models import  Problem, Option, Quiz, ScoreBoard
 
 class OptionInline(admin.TabularInline):
     model = Option
@@ -34,3 +34,8 @@ class ProblemAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Problem,ProblemAdmin)
+admin.site.register(ScoreBoard)
+
+
+    
+
