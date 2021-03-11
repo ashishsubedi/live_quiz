@@ -15,7 +15,7 @@ class ProblemInline(NestedTabularInline):
     
 class QuizAdmin(NestedModelAdmin):
     readonly_fields = ['author']
-
+    list_display = ('title','status','schedule_date')
     inlines = [ProblemInline]
     exclude = ['slug']
         
@@ -34,11 +34,13 @@ class QuizAdmin(NestedModelAdmin):
 admin.site.register(Quiz,QuizAdmin)
 
 class ScoreBoardAdmin(admin.ModelAdmin):
+    list_display = ('quiz','user','score')
+    
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         if request.user.is_superuser:
             return qs
- 
+
         return qs.filter(quiz__author=request.user)
     
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

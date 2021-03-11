@@ -4,6 +4,8 @@ from django.utils.text import slugify
 
 
 from django.utils import timezone
+from datetime import timedelta
+
 User = get_user_model()
 
 
@@ -16,6 +18,7 @@ class Quiz(models.Model):
     author = models.ForeignKey(User,related_name='quiz',on_delete=models.CASCADE)
     status = models.IntegerField(choices=STATUS_TYPE)
     title = models.CharField(max_length=255,default='')
+    timelimit = models.DurationField(default=timedelta(minutes=20))
     schedule_date = models.DateTimeField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -25,7 +28,7 @@ class Quiz(models.Model):
         verbose_name_plural = 'Quizzes'
     
     def __str__(self):
-        return self.title
+        return f'{self.title}'
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
