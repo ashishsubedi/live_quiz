@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.utils.text import slugify 
+from django.urls import reverse
 
 
 from django.utils import timezone
@@ -33,9 +33,10 @@ class Quiz(models.Model):
         return f'{self.title}'
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
         super(Quiz, self).save(*args, **kwargs)
-
+    
+    def get_absolute_url(self):
+        return reverse('quiz_detail',args=[self.id])
 
 class Problem(models.Model):
     question = models.TextField()

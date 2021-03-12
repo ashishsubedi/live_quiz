@@ -4,6 +4,10 @@ from django.contrib import admin
 from nested_inline.admin import NestedStackedInline, NestedModelAdmin, NestedTabularInline
 from .models import  Problem, Option, Quiz, ScoreBoard
 
+admin.site.site_header = "Live Quiz Admin"
+admin.site.site_title = "Live Quiz Admin Portal"
+admin.site.index_title = "Welcome to Live Quiz Admin Portal"
+
 class OptionInline(NestedTabularInline):
     model = Option
     extra = 4
@@ -20,13 +24,13 @@ class QuizAdmin(NestedModelAdmin):
     list_display = ('title','status','schedule_date')
     list_filter = ('author','schedule_date','author__is_superuser')
     inlines = [ProblemInline]
-    exclude = ['slug']
         
     def save_model(self, request, obj, form, change):
-        obj.author = request.user
-        obj.author_id = request.user.id
-        obj.last_modified_by = request.user
-        obj.save()
+        if not obj.author:
+            obj.author = request.user
+            obj.author_id = request.user.id
+            obj.last_modified_by = request.user
+            obj.save()
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

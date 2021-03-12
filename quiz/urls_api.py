@@ -8,8 +8,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path('', IndexView.as_view() ,name='quiz_index'),
-    path('api/quiz/',include('quiz.urls_api')),
-
+    path('list/', QuizList.as_view(),name='quiz_list'),
+    path('<pk>/', QuizRetrieveView.as_view(),name='quiz_detail'),
 
 ]

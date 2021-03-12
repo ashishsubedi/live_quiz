@@ -62,6 +62,7 @@ class QuizRetrieveSerializer(serializers.ModelSerializer):
     problems = serializers.SerializerMethodField()
     author = serializers.SerializerMethodField()
     status_name = serializers.SerializerMethodField()
+ 
 
     def get_problems(self, obj):
         
@@ -87,6 +88,8 @@ class QuizRetrieveSerializer(serializers.ModelSerializer):
 
     def get_status_name(self,obj):
         return obj.get_status_display()
+
+
 
     class Meta:
         model = Quiz
