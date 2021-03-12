@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.views import View
+from django.views.generic.list import ListView
 
 from rest_framework.views import APIView
 from rest_framework.generics import (
@@ -24,19 +25,22 @@ from .permissions import IsAuthor, IsStaff
 User = get_user_model()
 
 
-class IndexView(View):
-    def get(self,request):
-        all_fields_names = Quiz._meta.get_fields()   
-        value_fields = [f.name for f in all_fields_names]
-        all_rows = Quiz.objects.values_list(*(value_fields)) #pass fields to value_list
 
+
+class IndexView(View):
+
+    def get(self,request):
+        quizzes = Quiz.objects.filter(status=3)
+        urls = []
+        for quiz in quizzes:
+            urls.append(quiz.get_absolute_url())
         context = {
             'hello':'world',
-            'all_rows':all_rows,
-            'all_fields_names':all_fields_names
+            'quiz_data' : zip(quizzes,urls)
+
         }
         return render(request,'quiz/index.html',context=context)
-
+        
 
 class QuizList(ListAPIView):
     ''' 

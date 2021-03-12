@@ -21,16 +21,17 @@ class ProblemInline(NestedStackedInline):
     
 class QuizAdmin(NestedModelAdmin):
     readonly_fields = ['author']
-    list_display = ('title','status','schedule_date')
+    list_display = ('title','author','status','schedule_date')
     list_filter = ('author','schedule_date','author__is_superuser')
     inlines = [ProblemInline]
         
     def save_model(self, request, obj, form, change):
+        print(change)
         if not obj.author:
             obj.author = request.user
             obj.author_id = request.user.id
             obj.last_modified_by = request.user
-            obj.save()
+        obj.save()
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

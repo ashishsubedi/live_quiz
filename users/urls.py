@@ -9,7 +9,7 @@ from .views import (
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
-    path('register/', UserRegisterView.as_view()),
-    path('login/', obtain_auth_token),
-    path('logout/', UserLogoutView.as_view()),
+    path('register/', UserRegisterView.as_view(),name='user-register'),
+    path('login/', obtain_auth_token,name='user-login'),
+    path('logout/', UserLogoutView.as_view(),name='user-logout'),
 ]
