@@ -17,13 +17,34 @@ from .models import (
     ScoreBoard
 )
 
-from .serializers import QuizListSerializer,QuizRetrieveSerializer
-from .permissions import IsAuthor
+from .serializers import QuizListSerializer, QuizRetrieveSerializer
+from .permissions import IsAuthor, IsStaff
 
 
 User = get_user_model()
 
+
 class QuizList(ListAPIView):
+    ''' 
+        Staff can list the quizzes they have created
+    '''
+    queryset = Quiz.objects.all()
+    permission_classes = [IsAuthenticated, IsStaff]
+    serializer_class = QuizListSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Quiz.objects.all()
+
+        return Quiz.objects.filter(author=user)
+
+
+class UserQuizList(ListAPIView):
+    ''' 
+        Normal user can view the all the public quiz or
+        private quiz if they have permission
+    '''
     queryset = Quiz.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = QuizListSerializer
@@ -35,9 +56,9 @@ class QuizList(ListAPIView):
 
         return Quiz.objects.filter(author=user)
 
+
 class QuizRetrieveView(RetrieveAPIView):
     queryset = Quiz.objects.all()
-    permission_classes = [IsAuthenticated, IsAuthor]
+    permission_classes = [IsAuthenticated]
     serializer_class = QuizRetrieveSerializer
-
-
+    
