@@ -25,9 +25,14 @@ class QuizAdmin(NestedModelAdmin):
     list_filter = ('author','schedule_date','author__is_superuser')
     inlines = [ProblemInline]
         
+    # def get_form(self,request,obj=None,**kwargs):
+    #     print(obj,kwargs)
+         
+    #     return super().get_form(request, obj, **kwargs)
+
     def save_model(self, request, obj, form, change):
-        print(change)
-        if not obj.author:
+        
+        if not obj.author_id:
             obj.author = request.user
             obj.author_id = request.user.id
             obj.last_modified_by = request.user

@@ -21,7 +21,7 @@ class OptionRetrieveSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Option
-        fields = '__all__'
+        exclude = ['problem']
         depth = 0
 
 class UserOptionRetrieveSerializer(serializers.ModelSerializer):

@@ -18,44 +18,123 @@
 
         </div>
     </div>
-    {% for quiz,url in quiz_data %}
-    <li> <a href="{{url}}">{{ quiz.title }}</a></li>
-    {% empty %}
-    <li>No quizzes yet.</li>
-    {% endfor %}
+
+    <div class="row">
+
+
+        {% for quiz,url in quiz_data %}
+        <div class="col">
+
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ quiz.title}}</h5>
+                    <p class="card-text">Timelimit: {{quiz.timelimit}}</p>
+                    <a href="{{url}}" onclick="linkClicked(event)" class="btn btn-primary">Take Quiz</a>
+                </div>
+            </div>
+        </div>
+        <!-- <li> <a href="{{url}}" onclick="linkClicked(event)">{{ quiz.title }}</a></li> -->
+        {% empty %}
+        <li>No quizzes yet.</li>
+        {% endfor %}
+    </div>
+    <br>
+    <div id="quiz_questions" class="container row">
+
+    </div>
 </div>
 <script>
-    $('#login_btn').click(function(e){
+    $('#login_btn').click(function (e) {
         e.preventDefault();
         username = $('#login_username').val()
         password = $('#login_password').val()
         data = {
-            'username':username,
-            'password':password
-            }
+            'username': username,
+            'password': password
+        }
         console.log(data)
-        fetch('/api/users/login/',{
+        fetch('/api/users/login/', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Content-Type': 'application/json'
             },
-            
-            body: JSON.stringify({username,password})
+
+            body: JSON.stringify({ username, password })
         })
-        .then(res=>res.json())
-        .then(data=>{
-            console.log(data)
-            window.localStorage.setItem( 'Authorization',' Token '+data.token)
-            location.reload()
-        })
-        .catch(err=>console.error(err))
+            .then(res => res.json())
+            .then(data => {
+                console.log(data)
+                window.localStorage.setItem('token', ' Token ' + data.token)
+                location.reload()
+            })
+            .catch(err => console.error(err))
 
     })
+    function linkClicked(e) {
+        e.preventDefault();
+        url = e.target.getAttribute('href')
+        console.log(url)
+        fetch(url, {
+            headers: {
+                'Authorization': window.localStorage.getItem('token')
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
 
-	
+                addQuiz(data)
+            })
+    }
 
 
-    
+    function addQuiz(quiz) {
+        // Add quiz to the dom
+        $('#quiz_questions').html('')
+        $('#quiz_questions').append(`
+            <hr>
+            <h2>${quiz.title}</h2>
+            <h3>By: ${quiz.author}</h3> 
+            <h4>Time Limit: ${quiz.timelimit}</h4>
+            <h4>Total Questions:${quiz.total_questions_num}</h4>
+            <hr>
+ 
+        `)
+        addQuestion(quiz.problems)
+        $('#quiz_questions').append(`
+            <input type="button"class='btn btn-success' id="quiz_submit"value="Submit"/>
+        `)
+
+    }
+    function addQuestion(data) {
+        data.forEach((problem, i) => {
+            $('#quiz_questions').append(`
+
+                <div class="col-md-12">
+                    
+                    <h3>Q${i + 1}) ${problem.question}</h3>
+                    <span> ${problem.point} point</span>
+                    <hr>
+
+                    <div>
+                    ${problem.options.map((element, j) => {
+                return `
+                        <div class="input-group">
+                            <div class="input-group-text">
+                                <input type="radio" id="${element.id}" name="${problem.id}" value="${element.option}">
+                                <label for="${element.id}"> ${j + 1}) ${element.option}</label><br>
+                            </div>
+                        </div>
+                    `
+            }).join('')}
+                    </div>
+                </div>
+                
+            `)
+        })
+    }
+
+
+
 </script>
 {% endblock content %}

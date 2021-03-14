@@ -10,21 +10,20 @@
     </head>
 
     <body>
-       
 
             {% block content %}
             {% endblock content %}
         <script>
 
         $( document ).ready(function() {
-            var token = window.localStorage.getItem('Authorization');
+            var token = window.localStorage.getItem('token');
             
             if (token) {
-            $.ajaxSetup({
-                headers: {
-                'Authorization': token
-                }
-            });
+                $.ajaxSetup({
+                    headers: {
+                    'Authorization': token
+                    }
+                });
             }
         });
 
