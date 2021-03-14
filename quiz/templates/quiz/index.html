@@ -82,7 +82,7 @@
         })
             .then(res => res.json())
             .then(data => {
-
+                console.log(data)
                 addQuiz(data)
             })
     }
@@ -92,8 +92,9 @@
         // Add quiz to the dom
         $('#quiz_questions').html('')
         $('#quiz_questions').append(`
+            {% csrf_token %}
             <hr>
-            <h2>${quiz.title}</h2>
+            <h2 id='${quiz.id}'>${quiz.title}</h2>
             <h3>By: ${quiz.author}</h3> 
             <h4>Time Limit: ${quiz.timelimit}</h4>
             <h4>Total Questions:${quiz.total_questions_num}</h4>
@@ -101,27 +102,30 @@
  
         `)
         addQuestion(quiz.problems)
+        
         $('#quiz_questions').append(`
-            <input type="button"class='btn btn-success' id="quiz_submit"value="Submit"/>
+            <input type="button"class='btn btn-success' id="quiz_submit" value="Submit"/>
         `)
+        $('#quiz_submit').on('click',e=>{
+            submitQuiz()
+        })
 
     }
     function addQuestion(data) {
         data.forEach((problem, i) => {
             $('#quiz_questions').append(`
 
-                <div class="col-md-12">
+                <div id="${problem.id}" class="question col-md-12">
                     
                     <h3>Q${i + 1}) ${problem.question}</h3>
                     <span> ${problem.point} point</span>
                     <hr>
-
                     <div>
                     ${problem.options.map((element, j) => {
                 return `
                         <div class="input-group">
                             <div class="input-group-text">
-                                <input type="radio" id="${element.id}" name="${problem.id}" value="${element.option}">
+                                <input type="radio" id="${element.id}" name="${problem.id}"class='option-${i}' value="${element.option}">
                                 <label for="${element.id}"> ${j + 1}) ${element.option}</label><br>
                             </div>
                         </div>
@@ -129,9 +133,39 @@
             }).join('')}
                     </div>
                 </div>
+                <br>
+                <hr>
                 
             `)
         })
+    }
+
+    function submitQuiz(){
+        data = []
+        questions = $.find('.question')
+        questions.forEach(question=>{
+            
+            console.log(question.id)
+            q_id = question.id
+            option = $(`input[name='${q_id}']:checked`).attr('id')
+            
+            this.data.push({'question':parseInt(q_id),option:parseInt(option),point:parseInt(question.point)})
+        })
+       console.log(data)
+        $.ajax({
+            url:'/api/quiz/quiz/check/',
+            method:'post',
+            contentType:'application/json',
+            data:JSON.stringify(data),
+            success: function(result,status){
+                console.log(status,result)
+            },
+            error: function(xhr,status,error){
+                console.error(status,error)
+            }
+        })
+
+
     }
 
 

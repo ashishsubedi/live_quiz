@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, get_object_or_404
 
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -5,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.views import View
 from django.views.generic.list import ListView
 
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import (
     ListAPIView,
@@ -52,11 +55,10 @@ class QuizList(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        print(user)
         if user.is_superuser:
             return Quiz.objects.all()
         obj = Quiz.objects.filter(author=user)
-        print(obj)
+
         return obj
 
 
@@ -82,3 +84,36 @@ class QuizRetrieveView(RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = QuizRetrieveSerializer
     
+
+class QuizAnswerVerify(APIView):
+
+    def post(self,request,format=None):
+        datas = request.data
+        reply = []
+        score = 0
+        print(datas)
+        for data in datas:
+            
+            
+            option = Option.objects.filter(problem=data['question'],is_answer=True)
+
+            if option[0].id == data['option']:
+                score += data['point']
+                reply.append({
+                    'question':data['question'],
+                    'option': 'Correct',
+                    'point':data['point']
+                })
+            else:
+                reply.append({
+                    'question':data['question'],
+                    'option': 'Wrong',
+                    'point':0
+                })
+
+
+
+
+
+        
+        return Response({'data':data,'score':score})

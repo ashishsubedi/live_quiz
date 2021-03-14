@@ -49,7 +49,7 @@ class ProblemRetrieveSerializer(serializers.ModelSerializer):
         user = None
         if request:
             user = request.user
-        print(user,request)
+     
         if user and (user.is_superuser or obj.quiz.author == user):
             serializer = OptionRetrieveSerializer(query, many=True)
         else:
