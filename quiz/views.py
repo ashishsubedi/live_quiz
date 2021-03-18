@@ -94,25 +94,32 @@ class QuizAnswerVerify(APIView):
         score = 0
         print(datas)
         for data in datas:
+            try:
             
-            
-            option = Option.objects.filter(problem=data['question'],is_answer=True)
+                option = Option.objects.filter(problem=data['question'],is_answer=True)
 
-            if option[0].id == data['option']:
-                score += data['point']
+                if option[0].id == data['option']:
+                    score += data['point']
+                    reply.append({
+                        'question':data['question'],
+                        'answer':OptionRetrieveSerializer(option[0]).data,
+                        'point':data['point']
+                    })
+                    
+                else:
+                    reply.append({
+                        'question':data['question'],
+                        'answer':OptionRetrieveSerializer(option[0]).data,
+                        'point':0
+                    })
+            except:
+                if data['option'] is None:
+                    score += data['point']
                 reply.append({
-                    'question':data['question'],
-                    'answer':OptionRetrieveSerializer(option[0]).data,
-                    'point':data['point']
+                        'question':data['question'],
+                        'answer':None,
+                        'point': data['point'] if data['option'] is None else 0
                 })
-                
-            else:
-                reply.append({
-                    'question':data['question'],
-                    'answer':OptionRetrieveSerializer(option[0]).data,
-                    'point':0
-                })
-
 
 
 

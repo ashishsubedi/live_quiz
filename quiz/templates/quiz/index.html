@@ -186,32 +186,44 @@
                     <div id='final_score'>
                         <h1 class='final_answer'> Final Score: ${result.score} </h1>
                         ${result.data.map(data => {
-                            q_id = data.question
-                            option = $(`input[name='${q_id}']:checked`).attr('id')
-                            console.log(option)
-                            if (option != undefined) {
-                                if (option == data.answer.id) {
-                                    $(`input[name='${q_id}']:checked`).parent().addClass('correct');
+                    q_id = data.question
+                    option = $(`input[name='${q_id}']:checked`).attr('id')
+                    console.log(option)
+                    try {
+                        if (option != undefined) {
 
+                            if (option == data.answer.id) {
+                                $(`input[name='${q_id}']:checked`).parent().addClass('correct');
 
-                                }
-                                else {
-                                    $(`input[name='${q_id}']:checked`).parent().addClass('incorrect');
-                                    $(`#${data.answer.id}`).parent().addClass('correct');
-
-                                }
 
                             }
-                            else{
+                            else {
+
+                                $(`input[name='${q_id}']:checked`).parent().addClass('incorrect');
                                 $(`#${data.answer.id}`).parent().addClass('correct');
-
                             }
 
-                        }).join('')}
-                    </div>
-                    <br>
 
-                `)
+                        }
+
+
+                        else {
+
+
+                            $(`#${data.answer.id}`).parent().addClass('correct');
+
+
+                        }
+                    } catch (error) {
+
+                    }
+
+                }).join('')
+                    }
+                    </div >
+        <br>
+
+            `)
                 document.getElementById("final_score").scrollIntoView();
 
 
