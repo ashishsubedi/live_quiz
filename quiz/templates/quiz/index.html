@@ -158,18 +158,20 @@
     }
 
     function submitQuiz() {
+
         data = []
+        $('#quiz_submit').attr('disabled', 'true')
         questions = $.find('.question')
-        
+
         questions.forEach(question => {
 
             q_id = question.id
             option = $(`input[name='${q_id}']:checked`).attr('id')
             point = $.find(`#point-${q_id}`)[0]
 
-            
+
             // console.log(question,$(point).data('point'))
-            this.data.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt($(point).data('point'))})
+            this.data.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt($(point).data('point')) })
         })
         console.log(data)
         $.ajax({
@@ -179,9 +181,43 @@
             data: JSON.stringify(data),
             success: function (result, status) {
                 console.log(status, result)
+                $('#quiz_questions').prepend(`
+                    <br>
+                    <div id='final_score'>
+                        <h1 class='final_answer'> Final Score: ${result.score} </h1>
+                        ${result.data.map(data => {
+                            q_id = data.question
+                            option = $(`input[name='${q_id}']:checked`).attr('id')
+                            console.log(option)
+                            if (option != undefined) {
+                                if (option == data.answer.id) {
+                                    $(`input[name='${q_id}']:checked`).parent().addClass('correct');
+
+
+                                }
+                                else {
+                                    $(`input[name='${q_id}']:checked`).parent().addClass('incorrect');
+                                    $(`#${data.answer.id}`).parent().addClass('correct');
+
+                                }
+
+                            }
+                            else{
+                                $(`#${data.answer.id}`).parent().addClass('correct');
+
+                            }
+
+                        }).join('')}
+                    </div>
+                    <br>
+
+                `)
+                document.getElementById("final_score").scrollIntoView();
+
+
             },
             error: function (xhr, status, error) {
-                console.error(status, error,xhr)
+                console.error(status, error, xhr)
             }
         })
 
@@ -191,26 +227,26 @@
         token = window.localStorage.getItem('token')
         if (token) {
             key = token.split(' ')[2]
-            console.log(token,key)
+            console.log(token, key)
 
             $.ajax({
                 url: '/api/users/info/',
                 method: 'POST',
                 contentType: 'application/json',
                 headers: {
-                'Authorization': token || ''
+                    'Authorization': token || ''
                 },
                 data: JSON.stringify({ 'token': key.toString() }),
                 success: function (result, status) {
                     console.log(status, result)
-                    $('.login_div').attr('hidden',true)
+                    $('.login_div').attr('hidden', true)
                     $('#username_display').text(result.user.username)
                     $('.logout_div').removeAttr('hidden')
-                    
+
                 },
 
                 error: function (xhr, status, error) {
-                    console.error(status, error,xhr)
+                    console.error(status, error, xhr)
 
                 }
 
@@ -220,23 +256,23 @@
         }
 
     })
-    $('#logout_btn').on('click',function(e){
+    $('#logout_btn').on('click', function (e) {
         token = window.localStorage.getItem('token')
         e.preventDefault();
         $.ajax({
-            url:'/api/users/logout',
+            url: '/api/users/logout',
             headers: {
                 'Authorization': token || ''
             },
             success: function (result, status) {
-                    location.reload()
-                    
-                },
+                location.reload()
 
-                error: function (xhr, status, error) {
-                    console.error(status, error,xhr)
+            },
 
-                }
+            error: function (xhr, status, error) {
+                console.error(status, error, xhr)
+
+            }
         })
 
 
