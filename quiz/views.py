@@ -21,7 +21,7 @@ from .models import (
     ScoreBoard
 )
 
-from .serializers import QuizListSerializer, QuizRetrieveSerializer
+from .serializers import QuizListSerializer, QuizRetrieveSerializer, OptionRetrieveSerializer
 from .permissions import IsAuthor, IsStaff
 
 
@@ -89,6 +89,7 @@ class QuizAnswerVerify(APIView):
 
     def post(self,request,format=None):
         datas = request.data
+
         reply = []
         score = 0
         print(datas)
@@ -101,13 +102,14 @@ class QuizAnswerVerify(APIView):
                 score += data['point']
                 reply.append({
                     'question':data['question'],
-                    'option': 'Correct',
+                    'answer':OptionRetrieveSerializer(option[0]).data,
                     'point':data['point']
                 })
+                
             else:
                 reply.append({
                     'question':data['question'],
-                    'option': 'Wrong',
+                    'answer':OptionRetrieveSerializer(option[0]).data,
                     'point':0
                 })
 
@@ -116,4 +118,4 @@ class QuizAnswerVerify(APIView):
 
 
         
-        return Response({'data':data,'score':score})
+        return Response({'data':reply,'score':score})

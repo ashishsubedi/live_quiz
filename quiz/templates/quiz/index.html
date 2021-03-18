@@ -37,7 +37,6 @@
                 </div>
             </div>
         </div>
-        <!-- <li> <a href="{{url}}" onclick="linkClicked(event)">{{ quiz.title }}</a></li> -->
         {% empty %}
         <li>No quizzes yet.</li>
         {% endfor %}
@@ -117,7 +116,7 @@
             <h4>Time Limit: ${quiz.timelimit}</h4>
             <h4>Total Questions:${quiz.total_questions_num}</h4>
             <hr>
- 
+
         `)
         addQuestion(quiz.problems)
 
@@ -136,7 +135,7 @@
                 <div id="${problem.id}" class="question col-md-12">
                     
                     <h3>Q${i + 1}) ${problem.question}</h3>
-                    <span> ${problem.point} point</span>
+                    <span id='point-${problem.id}' data-point='${problem.point}'> ${problem.point} point</span>
                     <hr>
                     <div>
                     ${problem.options.map((element, j) => {
@@ -161,13 +160,16 @@
     function submitQuiz() {
         data = []
         questions = $.find('.question')
+        
         questions.forEach(question => {
 
-            console.log(question.id)
             q_id = question.id
             option = $(`input[name='${q_id}']:checked`).attr('id')
+            point = $.find(`#point-${q_id}`)[0]
 
-            this.data.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt(question.point) })
+            
+            // console.log(question,$(point).data('point'))
+            this.data.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt($(point).data('point'))})
         })
         console.log(data)
         $.ajax({
