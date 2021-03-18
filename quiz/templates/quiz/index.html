@@ -17,6 +17,10 @@
             <button type="button" id='login_btn'>Login</button>
 
         </div>
+        <div class="col logout_div" hidden>
+            <span id="username_display"></span>
+            <button type="button" id='logout_btn'>Logout</button>
+        </div>
     </div>
 
     <div class="row">
@@ -44,6 +48,7 @@
     </div>
 </div>
 <script>
+
     $('#login_btn').click(function (e) {
         e.preventDefault();
         username = $('#login_username').val()
@@ -53,38 +58,51 @@
             'password': password
         }
         console.log(data)
-        fetch('/api/users/login/', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
 
-            body: JSON.stringify({ username, password })
-        })
-            .then(res => res.json())
-            .then(data => {
+        $.ajax({
+            url: '/api/users/login/',
+            method: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify({ username, password }),
+            success: function (data, status) {
                 console.log(data)
                 window.localStorage.setItem('token', ' Token ' + data.token)
+
+                alert('Successfully Logged in, ' + data.username)
                 location.reload()
-            })
-            .catch(err => console.error(err))
+
+            },
+            error: function (xhr, status, error) {
+                console.log(status, error, xhr)
+
+                alert(error + ' : ' + xhr.responseJSON.non_field_errors)
+
+            }
+        })
 
     })
     function linkClicked(e) {
         e.preventDefault();
         url = e.target.getAttribute('href')
-        console.log(url)
-        fetch(url, {
+        console.log(window.localStorage.getItem('token'))
+        $.ajax({
+            url: url,
+            method: 'get',
+            contentType: 'application/json',
             headers: {
-                'Authorization': window.localStorage.getItem('token')
+                'Authorization': window.localStorage.getItem('token') || ''
+            },
+            success: function (data, status) {
+
+                addQuiz(data)
+            },
+            error: function (xhr, status, error) {
+
+                alert(error + ' : ' + xhr.responseJSON.detail)
+
             }
         })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data)
-                addQuiz(data)
-            })
+
     }
 
 
@@ -102,11 +120,11 @@
  
         `)
         addQuestion(quiz.problems)
-        
+
         $('#quiz_questions').append(`
             <input type="button"class='btn btn-success' id="quiz_submit" value="Submit"/>
         `)
-        $('#quiz_submit').on('click',e=>{
+        $('#quiz_submit').on('click', e => {
             submitQuiz()
         })
 
@@ -140,34 +158,87 @@
         })
     }
 
-    function submitQuiz(){
+    function submitQuiz() {
         data = []
         questions = $.find('.question')
-        questions.forEach(question=>{
-            
+        questions.forEach(question => {
+
             console.log(question.id)
             q_id = question.id
             option = $(`input[name='${q_id}']:checked`).attr('id')
-            
-            this.data.push({'question':parseInt(q_id),option:parseInt(option),point:parseInt(question.point)})
+
+            this.data.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt(question.point) })
         })
-       console.log(data)
+        console.log(data)
         $.ajax({
-            url:'/api/quiz/quiz/check/',
-            method:'post',
-            contentType:'application/json',
-            data:JSON.stringify(data),
-            success: function(result,status){
-                console.log(status,result)
+            url: '/api/quiz/quiz/check/',
+            method: 'post',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function (result, status) {
+                console.log(status, result)
             },
-            error: function(xhr,status,error){
-                console.error(status,error)
+            error: function (xhr, status, error) {
+                console.error(status, error,xhr)
             }
         })
 
 
     }
+    $(document).ready(function () {
+        token = window.localStorage.getItem('token')
+        if (token) {
+            key = token.split(' ')[2]
+            console.log(token,key)
 
+            $.ajax({
+                url: '/api/users/info/',
+                method: 'POST',
+                contentType: 'application/json',
+                headers: {
+                'Authorization': token || ''
+                },
+                data: JSON.stringify({ 'token': key.toString() }),
+                success: function (result, status) {
+                    console.log(status, result)
+                    $('.login_div').attr('hidden',true)
+                    $('#username_display').text(result.user.username)
+                    $('.logout_div').removeAttr('hidden')
+                    
+                },
+
+                error: function (xhr, status, error) {
+                    console.error(status, error,xhr)
+
+                }
+
+            })
+
+
+        }
+
+    })
+    $('#logout_btn').on('click',function(e){
+        token = window.localStorage.getItem('token')
+        e.preventDefault();
+        $.ajax({
+            url:'/api/users/logout',
+            headers: {
+                'Authorization': token || ''
+            },
+            success: function (result, status) {
+                    location.reload()
+                    
+                },
+
+                error: function (xhr, status, error) {
+                    console.error(status, error,xhr)
+
+                }
+        })
+
+
+    })
 
 
 </script>
