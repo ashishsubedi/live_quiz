@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,10 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'k#(szo6xu3evr6$rs7i_+fhj3vz@gsgt7ll+u1b)itl4^vrn@8'
-
+SECRET_KEY = os.environ.get("SECRET_KEY",'blahhh')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG",False)
 
 ALLOWED_HOSTS = []
 
@@ -62,7 +66,7 @@ ROOT_URLCONF = 'live_quiz.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,8 +87,12 @@ WSGI_APPLICATION = 'live_quiz.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': os.environ.get('DB_NAME','myDb'),
+        'USER': os.environ.get('DB_USER','myUser'),
+        'PASSWORD': os.environ.get('DB_PASSWORD','myPassword'),
+        'HOST': os.environ.get('DB_HOST','myHost'),   # Or an IP Address that your DB is hosted on
+        'PORT': os.environ.get('DB_PORT','myPort'),
     }
 }
 
@@ -126,6 +134,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT =  BASE_DIR / 'static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT =  BASE_DIR / 'media'
 
 DEFAULT_RENDERER_CLASSES = [
         'rest_framework.renderers.JSONRenderer',
@@ -141,8 +153,6 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':['rest_framework.authentication.TokenAuthentication'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
-
-
 }
 
 
