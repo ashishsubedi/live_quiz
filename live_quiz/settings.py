@@ -87,18 +87,18 @@ WSGI_APPLICATION = 'live_quiz.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql', 
-    #     'NAME': config('DB_NAME',default='myDb'),
-    #     'USER': config('DB_USER',default='myUser'),
-    #     'PASSWORD': config('DB_PASSWORD',default='myPassword'),
-    #     'HOST': config('DB_HOST',default='myHost'),   # Or an IP Address that your DB is hosted on
-    #     'PORT': config('DB_PORT',default=2200,cast=int),
-    # },
     'default': {
-        "ENGINE": "django.db.backends.sqlite3",
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.mysql', 
+        'NAME': config('DB_NAME',default='myDb'),
+        'USER': config('DB_USER',default='myUser'),
+        'PASSWORD': config('DB_PASSWORD',default='myPassword'),
+        'HOST': config('DB_HOST',default='myHost'),   # Or an IP Address that your DB is hosted on
+        'PORT': config('DB_PORT',default=2200,cast=int),
+    },
+    #'default': {
+        #"ENGINE": "django.db.backends.sqlite3",
+        #'NAME': BASE_DIR / 'db.sqlite3',
+    #}
 }
 
 
@@ -126,7 +126,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kathmandu'
 
 USE_I18N = True
 
