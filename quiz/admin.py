@@ -47,20 +47,33 @@ class QuizAdmin(NestedModelAdmin):
 admin.site.register(Quiz,QuizAdmin)
 
 class ScoreBoardAdmin(admin.ModelAdmin):
-    list_display = ('quiz','user','score')
+    list_display = ('quiz','user','score','created_at','get_author')
+    readonly_fields =  ('quiz','user','created_at')
+    date_hierarchy = 'quiz__created'
+    list_filter = ('quiz__schedule_date','quiz__updated')
+    search_fields = ('quiz__author__username','quiz__author__email','quiz__author__first_name','quiz__author__last_name',
+    'user__username','user__email','user__first_name','user__last_name',
+        
+    )
+    
     
     def get_queryset(self, request):
         qs = super().get_queryset(request)
+        print(qs)
         if request.user.is_superuser:
             return qs
 
         return qs.filter(quiz__author=request.user)
     
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "quiz":
-            kwargs["queryset"] = Quiz.objects.filter(author=request.user)
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    #     if db_field.name == "quiz":
+    #         kwargs["queryset"] = Quiz.objects.filter(author=request.user)
+    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
         
+    def get_author(self, obj):
+        return obj.quiz.author
+    get_author.short_description = 'Author'
+    get_author.admin_order_field = 'quiz__author'
 
 
 

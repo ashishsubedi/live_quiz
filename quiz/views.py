@@ -88,7 +88,9 @@ class QuizRetrieveView(RetrieveAPIView):
 class QuizAnswerVerify(APIView):
 
     def post(self,request,format=None):
-        datas = request.data
+        datas = request.data['datas']
+        quiz_id = request.data['quiz']
+        print(request.user,request.user)
 
         reply = []
         score = 0
@@ -122,7 +124,10 @@ class QuizAnswerVerify(APIView):
                 })
 
 
-
-
+        try:
+            quiz = Quiz.objects.get(id=quiz_id)
+            ScoreBoard.objects.create(quiz=quiz,user=request.user,score=score)
+        except:
+            pass
         
         return Response({'data':reply,'score':score})

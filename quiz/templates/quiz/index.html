@@ -32,7 +32,7 @@
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
                     <h5 class="card-title">{{ quiz.title}}</h5>
-                    <p class="card-text" >Timelimit: {{quiz.timelimit}}</p>
+                    <p class="card-text">Timelimit: {{quiz.timelimit}}</p>
                     <a href="{{url}}" onclick="linkClicked(event)" class="btn btn-primary">Take Quiz</a>
                 </div>
             </div>
@@ -107,26 +107,26 @@
     }
 
     function startTimer(quiz_id) {
-        
+
         startTime = moment()
         timelimit = $(`#${quiz_id}_time_limit`).text().trim()
 
-      
-        const [_, hr, min, sec ] = timelimit.split(':')
+
+        const [_, hr, min, sec] = timelimit.split(':')
 
         let endtime = moment(startTime).add({
-            hours:parseInt(hr),
-            minutes:parseInt(min),
-            seconds:parseInt(sec),
+            hours: parseInt(hr),
+            minutes: parseInt(min),
+            seconds: parseInt(sec),
         })
         window.localStorage.setItem('end_time', endtime)
-        this.timerInterval = setInterval(checkTimeUp,500,quiz_id)
-        
+        this.timerInterval = setInterval(checkTimeUp, 500, quiz_id)
+
 
     }
-    function checkTimeUp(quiz_id){
+    function checkTimeUp(quiz_id) {
         endtime = moment(window.localStorage.getItem('end_time'))
-        if(endtime.diff(moment()) > 0){
+        if (endtime.diff(moment()) > 0) {
             // Still have time remaining
             duration = moment.duration(endtime.diff(moment()))
             //Update time remaining
@@ -134,7 +134,7 @@
                 `Time Remaining: ${duration.hours()}:${duration.minutes()}:${duration.seconds()}`
             )
 
-        }else{
+        } else {
             submitQuiz()
             $(`#${quiz_id}_time_rem`).text(
                 `Time Remaining: Time Over. Auto Submitted`
@@ -152,10 +152,10 @@
         $('#quiz_questions').append(`
             {% csrf_token %}
             <hr>
-            <h2 id='${quiz.id}'>${quiz.title}</h2>
+            <h2 id='${quiz.id}' class='active_quiz'>${quiz.title}</h2>
             <h3>By: ${quiz.author}</h3> 
             <h4 id="${quiz.id}_time_limit">Time Limit:  ${quiz.timelimit}</h4>
-            <p id="${quiz.id}_time_rem" >Time Remaining: ${quiz.timelimit}</p>
+            <h4 id="${quiz.id}_time_rem" >Time Remaining: ${quiz.timelimit}</h4>
 
             <h4>Total Questions:${quiz.total_questions_num}</h4>
             <hr>
@@ -199,13 +199,17 @@
                 
             `)
         })
-        
+
 
     }
 
     function submitQuiz() {
         clearInterval(timerInterval)
-        data = []
+        data = {
+            quiz: $('.active_quiz').attr('id'),
+            datas: []
+        }
+
         $('#quiz_submit').attr('disabled', 'true')
         questions = $.find('.question')
 
@@ -217,13 +221,18 @@
 
 
             // console.log(question,$(point).data('point'))
-            this.data.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt($(point).data('point')) })
+            this.data.datas.push({ 'question': parseInt(q_id), option: parseInt(option), point: parseInt($(point).data('point')) })
         })
         console.log(data)
+        token = window.localStorage.getItem('token')
+       
         $.ajax({
             url: '/api/quiz/quiz/check/',
             method: 'post',
             contentType: 'application/json',
+            headers: {
+                'Authorization': token || ''
+            },
             data: JSON.stringify(data),
             success: function (result, status) {
                 console.log(status, result)

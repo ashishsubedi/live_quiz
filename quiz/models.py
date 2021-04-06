@@ -21,9 +21,12 @@ class Quiz(models.Model):
     timelimit = models.DurationField(default=timedelta(minutes=20))
     total_questions_num = models.IntegerField(default=10)
     available_attempts = models.IntegerField(default=3)
-    schedule_date = models.DateTimeField(default=timezone.now)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    schedule_date = models.DateTimeField("Scheduled Date",default=timezone.now)
+    
+    created = models.DateTimeField("Created Date",auto_now_add=True)
+    updated = models.DateTimeField("Modified Date",auto_now=True)
+
+    scores = models.ManyToManyField(User, through='ScoreBoard',related_name='quizzes')
 
     class Meta:
         ordering = ['-created']
@@ -60,10 +63,12 @@ class Option(models.Model):
     def __str__(self):
         return f"{self.option} for {self.problem.question}"
 
+
 class ScoreBoard(models.Model):
     quiz = models.ForeignKey(Quiz,related_name='scoreboard',on_delete=models.CASCADE)
     user = models.ForeignKey(User,related_name='scoreboard',on_delete=models.CASCADE)
     score =  models.IntegerField(default=0)
+    created_at = models.DateTimeField('Taken At',auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.first_name}->{self.score} on {self.quiz.title}"
