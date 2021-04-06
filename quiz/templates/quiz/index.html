@@ -32,7 +32,7 @@
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
                     <h5 class="card-title">{{ quiz.title}}</h5>
-                    <p class="card-text">Timelimit: {{quiz.timelimit}}</p>
+                    <p class="card-text" >Timelimit: {{quiz.timelimit}}</p>
                     <a href="{{url}}" onclick="linkClicked(event)" class="btn btn-primary">Take Quiz</a>
                 </div>
             </div>
@@ -47,6 +47,8 @@
     </div>
 </div>
 <script>
+
+    timerInterval = null
 
     $('#login_btn').click(function (e) {
         e.preventDefault();
@@ -83,7 +85,7 @@
     function linkClicked(e) {
         e.preventDefault();
         url = e.target.getAttribute('href')
-        console.log(window.localStorage.getItem('token'))
+
         $.ajax({
             url: url,
             method: 'get',
@@ -104,6 +106,45 @@
 
     }
 
+    function startTimer(quiz_id) {
+        
+        startTime = moment()
+        timelimit = $(`#${quiz_id}_time_limit`).text().trim()
+
+      
+        const [_, hr, min, sec ] = timelimit.split(':')
+
+        let endtime = moment(startTime).add({
+            hours:parseInt(hr),
+            minutes:parseInt(0),
+            seconds:parseInt(10),
+        })
+        window.localStorage.setItem('end_time', endtime)
+        this.timerInterval = setInterval(checkTimeUp,500,quiz_id)
+        
+
+    }
+    function checkTimeUp(quiz_id){
+        endtime = moment(window.localStorage.getItem('end_time'))
+        if(endtime.diff(moment()) > 0){
+            // Still have time remaining
+            duration = moment.duration(endtime.diff(moment()))
+            //Update time remaining
+            $(`#${quiz_id}_time_rem`).text(
+                `Time Remaining: ${duration.hours()}:${duration.minutes()}:${duration.seconds()}`
+            )
+
+        }else{
+            submitQuiz()
+            $(`#${quiz_id}_time_rem`).text(
+                `Time Remaining: Time Over. Auto Submitted`
+            )
+        }
+
+
+
+    }
+
 
     function addQuiz(quiz) {
         // Add quiz to the dom
@@ -113,7 +154,9 @@
             <hr>
             <h2 id='${quiz.id}'>${quiz.title}</h2>
             <h3>By: ${quiz.author}</h3> 
-            <h4>Time Limit: ${quiz.timelimit}</h4>
+            <h4 id="${quiz.id}_time_limit">Time Limit:  ${quiz.timelimit}</h4>
+            <p id="${quiz.id}_time_rem" >Time Remaining: ${quiz.timelimit}</p>
+
             <h4>Total Questions:${quiz.total_questions_num}</h4>
             <hr>
 
@@ -126,6 +169,7 @@
         $('#quiz_submit').on('click', e => {
             submitQuiz()
         })
+        startTimer(quiz.id);
 
     }
     function addQuestion(data) {
@@ -155,10 +199,12 @@
                 
             `)
         })
+        
+
     }
 
     function submitQuiz() {
-
+        clearInterval(timerInterval)
         data = []
         $('#quiz_submit').attr('disabled', 'true')
         questions = $.find('.question')
@@ -236,6 +282,20 @@
 
     }
     $(document).ready(function () {
+        Date.prototype.addSeconds = function (seconds) {
+            this.setSeconds(this.getSeconds() + seconds);
+            return this;
+        };
+
+        Date.prototype.addMinutes = function (minutes) {
+            this.setMinutes(this.getMinutes() + minutes);
+            return this;
+        };
+
+        Date.prototype.addHours = function (hours) {
+            this.setHours(this.getHours() + hours);
+            return this;
+        };
         token = window.localStorage.getItem('token')
         if (token) {
             key = token.split(' ')[2]
