@@ -13,9 +13,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 from pathlib import Path
 
 import os
-from dotenv import load_dotenv
+from decouple import config
 
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,11 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY",'blahhh')
+SECRET_KEY = config("SECRET_KEY",default='blahhh')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DEBUG",False)
+DEBUG = config("DEBUG",default=False,cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -88,11 +87,11 @@ WSGI_APPLICATION = 'live_quiz.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': os.environ.get('DB_NAME','myDb'),
-        'USER': os.environ.get('DB_USER','myUser'),
-        'PASSWORD': os.environ.get('DB_PASSWORD','myPassword'),
-        'HOST': os.environ.get('DB_HOST','myHost'),   # Or an IP Address that your DB is hosted on
-        'PORT': os.environ.get('DB_PORT','myPort'),
+        'NAME': config('DB_NAME',default='myDb'),
+        'USER': config('DB_USER',default='myUser'),
+        'PASSWORD': config('DB_PASSWORD',default='myPassword'),
+        'HOST': config('DB_HOST',default='myHost'),   # Or an IP Address that your DB is hosted on
+        'PORT': config('DB_PORT',default='myPort',cast=int),
     }
 }
 
