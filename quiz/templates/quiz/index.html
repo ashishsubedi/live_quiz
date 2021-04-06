@@ -116,8 +116,8 @@
 
         let endtime = moment(startTime).add({
             hours:parseInt(hr),
-            minutes:parseInt(0),
-            seconds:parseInt(10),
+            minutes:parseInt(min),
+            seconds:parseInt(sec),
         })
         window.localStorage.setItem('end_time', endtime)
         this.timerInterval = setInterval(checkTimeUp,500,quiz_id)
